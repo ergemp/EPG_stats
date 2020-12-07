@@ -212,7 +212,3 @@ BEGIN
 END;
 $$
 language plpgsql
-
-call fv_stats.drop_meta();
-call fv_stats.create_meta();
-

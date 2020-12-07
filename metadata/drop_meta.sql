@@ -15,5 +15,3 @@ begin
 end
 $$
 language plpgsql 
-
-call fv_stats.drop_meta();

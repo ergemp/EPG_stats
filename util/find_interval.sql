@@ -15,6 +15,10 @@ BEGIN
   SELECT min(fb.ts) INTO begin_ts FROM fv_stats.find_between(cast(extract (epoch from (to_timestamp(g_ts)-g_interval)) as bigint)) fb;
   SELECT max(fb.ts) INTO end_ts FROM fv_stats.find_between(cast(extract (epoch from (to_timestamp(g_ts))) as bigint)) fb;
 
+  if (begin_ts = end_ts) then 
+    select min(sah.ts) into begin_ts from fv_stats.stat_activity_hist sah;
+    select max(sah.ts) into begin_ts from fv_stats.stat_activity_hist sah;
+  end if;
 
   ts := begin_ts;
   RETURN NEXT;

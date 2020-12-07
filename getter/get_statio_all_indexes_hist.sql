@@ -1,4 +1,4 @@
-drop FUNCTION IS EXISTS  fv_stats.get_statio_all_indexes_hist;
+drop FUNCTION If EXISTS  fv_stats.get_statio_all_indexes_hist;
 
 CREATE OR replace FUNCTION fv_stats.get_statio_all_indexes_hist(g_ts bigint, g_interval interval) RETURNS TABLE 
 (

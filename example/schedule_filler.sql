@@ -28,6 +28,9 @@ true,
 )
 ;
 
+
+call fv_stats.fill_meta();
+
 update cron.job set jobid=5 where jobid=4;
 
 update cron.job set database='postgres' where jobid=5;
@@ -82,7 +85,7 @@ select ts, to_timestamp(ts) from fv_stats.find_interval(cast(extract (epoch from
 select ts, to_timestamp(ts) from fv_stats.find_interval(1606199201,interval '20 mins')
 
 select extract (epoch from to_timestamp('2020-11-24 10:00','YYYY-MM-DD HH:MI'))
-select ts, to_timestamp(ts) from fv_stats.find_interval(,interval '30 min')
+select ts, to_timestamp(ts) from fv_stats.find_interval(now(),interval '30 min')
 
 --
 -- test getter functions
@@ -96,8 +99,6 @@ select count(*) from
   select * from fv_stats.stat_activity_hist sah where sah.ts <= cast(extract(epoch from now()) as bigint) limit 1
 ) as cnt;
 
-
-select max(ts), to_timestamp(max(ts)) from fv_stats.stat_activity_hist
 select max(sah.ts), to_timestamp(max(sah.ts)) FROM fv_stats.stat_activity_hist sah WHERE sah.ts < (select max(ts) from fv_stats.stat_activity_hist );
   
 

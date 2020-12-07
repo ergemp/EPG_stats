@@ -4,7 +4,7 @@ DECLARE
   currentts bigint;
 BEGIN
 	
-	currentts := extract(epoch from now()) ;
+	currentts := extract(epoch from now()::timestamp with time zone) ;
 
 	execute 'INSERT INTO fv_stats.stat_all_tables_hist 
 				(
@@ -376,7 +376,4 @@ END
 $$
 LANGUAGE plpgsql
 
-
 --call fv_stats.fill_meta();
-
-
