@@ -30,36 +30,46 @@ CREATE OR replace FUNCTION fv_stats.get_stat_statements_hist(g_ts bigint, g_inte
 )
 AS 
 $$
+DECLARE 
+  mints bigint;
+  maxts bigint;
 BEGIN
+
+    select min(fb.ts) into mints from fv_stats.find_interval(g_ts, g_interval) fb;
+    select min(fb.ts) into maxts from fv_stats.find_interval(g_ts, g_interval) fb;
+
     RETURN QUERY 
     select * from 
     (
     select 
-      min(ssh.ts), max(ssh.ts), 
-      ssh.userid, ssh.dbid, ssh.queryid, ssh.query, 
-      max(ssh.calls) - min(ssh.calls) as calls, 
-      max(ssh.total_time) - min(ssh.total_time),
-      max(ssh.min_time) - min(ssh.min_time),
-      max(ssh.max_time) - min(ssh.max_time),
-      max(ssh.mean_time) - min(ssh.mean_time),
-      max(ssh.stddev_time) - min(ssh.stddev_time),
-      max(ssh.rows) - min(ssh.rows),
-      max(ssh.shared_blks_hit) - min(ssh.shared_blks_hit),
-      max(ssh.shared_blks_read) - min(ssh.shared_blks_read),
-      max(ssh.shared_blks_dirtied) - min(ssh.shared_blks_dirtied),
-      max(ssh.shared_blks_written) - min(ssh.shared_blks_written),
-      max(ssh.local_blks_hit) - min(ssh.local_blks_hit),
-      max(ssh.local_blks_read) - min(ssh.local_blks_read),
-      max(ssh.local_blks_dirtied) - min(ssh.local_blks_dirtied),
-      max(ssh.local_blks_written) - min(ssh.local_blks_written),      
-      max(ssh.temp_blks_read) - min(ssh.temp_blks_read),
-      max(ssh.temp_blks_written) - min(ssh.temp_blks_written),      
-      max(ssh.blk_read_time) - min(ssh.blk_read_time),
-      max(ssh.blk_write_time) - min(ssh.blk_write_time)      
+      min(ssh.ts) as begin_ts, max(ssh.ts) as end_ts, 
+      ssh.userid as userid, ssh.dbid as dbid, ssh.queryid as queryid, ssh.query as query, 
+      max(ssh.calls) - case when coalesce(min(ssh.calls),0)=max(ssh.calls) then 0 else coalesce(min(ssh.calls),0) end as calls, 
+      max(ssh.total_time) - case when coalesce(min(ssh.total_time),0)=max(ssh.total_time) then 0 else coalesce(min(ssh.total_time),0) end as total_time,
+      max(ssh.min_time) - case when coalesce(min(ssh.min_time),0)=max(ssh.min_time) then 0 else coalesce(min(ssh.min_time),0) end as min_time  ,
+      max(ssh.max_time) - case when coalesce(min(ssh.max_time),0)=max(ssh.max_time) then 0 else coalesce(min(ssh.max_time),0) end as max_time,
+      max(ssh.mean_time) - case when coalesce(min(ssh.mean_time),0)=max(ssh.mean_time) then 0 else coalesce(min(ssh.mean_time),0) end as mean_time,
+      max(ssh.stddev_time) - case when coalesce(min(ssh.stddev_time),0)=max(ssh.stddev_time) then 0 else coalesce(min(ssh.stddev_time),0) end as stddev_time,
+      max(ssh.rows) - case when coalesce(min(ssh.rows),0)=max(ssh.rows) then 0 else coalesce(min(ssh.rows),0) end as rows,
+      max(ssh.shared_blks_hit) - case when coalesce(min(ssh.shared_blks_hit),0)=max(ssh.shared_blks_hit) then 0 else coalesce(min(ssh.shared_blks_hit),0) end as shared_blks_hit,
+      max(ssh.shared_blks_read) - case when coalesce(min(ssh.shared_blks_read),0)=max(ssh.shared_blks_read) then 0 else coalesce(min(ssh.shared_blks_read),0) end as shared_blks_read,
+      max(ssh.shared_blks_dirtied) - case when coalesce(min(ssh.shared_blks_dirtied),0)=max(ssh.shared_blks_dirtied) then 0 else coalesce(min(ssh.shared_blks_dirtied),0) end as shared_blks_dirtied,
+      max(ssh.shared_blks_written) - case when coalesce(min(ssh.shared_blks_written),0)=max(ssh.shared_blks_written) then 0 else coalesce(min(ssh.shared_blks_written),0) end as shared_blks_written,
+      max(ssh.local_blks_hit) - case when coalesce(min(ssh.local_blks_hit),0)=max(ssh.local_blks_hit) then 0 else coalesce(min(ssh.local_blks_hit),0) end as local_blks_hit,
+      max(ssh.local_blks_read) - case when coalesce(min(ssh.local_blks_read),0)=max(ssh.local_blks_read) then 0 else coalesce(min(ssh.local_blks_read),0) end as local_blks_read,
+      max(ssh.local_blks_dirtied) - case when coalesce(min(ssh.local_blks_dirtied),0)=max(ssh.local_blks_dirtied) then 0 else coalesce(min(ssh.local_blks_dirtied),0) end as local_blks_dirtied,
+      max(ssh.local_blks_written) - case when coalesce(min(ssh.local_blks_written),0)=max(ssh.local_blks_written) then 0 else coalesce(min(ssh.local_blks_written),0) end as local_blks_written,      
+      max(ssh.temp_blks_read) - case when coalesce(min(ssh.temp_blks_read),0)=max(ssh.temp_blks_read) then 0 else coalesce(min(ssh.temp_blks_read),0) end as temp_blks_read,
+      max(ssh.temp_blks_written) - case when coalesce(min(ssh.temp_blks_written),0)=max(ssh.temp_blks_written) then 0 else coalesce(min(ssh.temp_blks_written),0) end as temp_blks_written,      
+      max(ssh.blk_read_time) - case when coalesce(min(ssh.blk_read_time),0)=max(ssh.blk_read_time) then 0 else coalesce(min(ssh.blk_read_time),0) end as blk_read_time,
+      max(ssh.blk_write_time) - case when coalesce(min(ssh.blk_write_time),0)=max(ssh.blk_write_time) then 0 else coalesce(min(ssh.blk_write_time),0) end as blk_write_time 
     from 
       fv_stats.stat_statements_hist  ssh
     --where ssh.ts in (select fb.ts FROM fv_stats.find_between(g_ts) fb)        
-    WHERE ssh.ts IN (select ts from fv_stats.find_interval(g_ts, g_interval))
+    where ssh.ts between 
+      (select min(fb.ts) from fv_stats.find_interval(g_ts, g_interval) fb) 
+      and 
+      (select max(fb.ts) from fv_stats.find_interval(g_ts, g_interval) fb)
     GROUP BY ssh.userid, ssh.dbid, ssh.queryid, ssh.query
     ) as tt
     where tt.calls > 0

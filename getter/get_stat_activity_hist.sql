@@ -26,7 +26,14 @@ CREATE OR replace FUNCTION fv_stats.get_stat_activity_hist(g_ts bigint, g_interv
 )
 AS 
 $$
+DECLARE 
+  mints bigint;
+  maxts bigint;
 BEGIN
+
+    select min(fb.ts) into mints from fv_stats.find_interval(g_ts, g_interval) fb;
+    select min(fb.ts) into maxts from fv_stats.find_interval(g_ts, g_interval) fb;
+
     RETURN QUERY 
     select 
       sah.ts, sah.datid, sah.datname, sah.pid,
@@ -37,9 +44,11 @@ BEGIN
       sah.backend_xid, sah.backend_xmin, sah.query, 
       sah.backend_type 
     from 
-      fv_stats.stat_activity_hist  sah
-    --where sah.ts in (select min(fb.ts) FROM fv_stats.find_between(g_ts) fb)      
-    WHERE sah.ts IN (select fb.ts from fv_stats.find_interval(g_ts, g_interval) fb)
+      fv_stats.stat_activity_hist sah
+    where sah.ts between
+      (select min(fb.ts) from fv_stats.find_interval(g_ts, g_interval) fb) 
+      and 
+      (select max(fb.ts) from fv_stats.find_interval(g_ts, g_interval) fb)                       
     ;    
 END
 $$
