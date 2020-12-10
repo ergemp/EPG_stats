@@ -104,7 +104,6 @@ begin
     END LOOP;
     perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) || chr(10) , true)  ;
 
-
     --
     -- table and index cache hit ratios
     --
@@ -116,7 +115,7 @@ begin
     SELECT 
       round(100 * sum(idx_blks_hit) / (sum(idx_blks_hit) + sum(idx_blks_read)),2) into indexcachehitratio
     FROM 
-      fv_stats.get_statio_all_indexes_hist(cast(extract (epoch from now()) as bigint), INTERVAL '1 hour');  
+      fv_stats.get_statio_all_indexes_hist(g_ts, g_interval);  
   
     perform pg_catalog.pg_file_write(g_filename, '------------------' || chr(10) , true)  ;
     perform pg_catalog.pg_file_write(g_filename, 'Memory Efficiency ' || chr(10) , true)  ;
@@ -151,7 +150,7 @@ begin
         idx_scan, 
         seq_tup_read, 
         idx_tup_fetch 
-      from fv_stats.get_stat_all_tables_hist( g_ts, g_interval)
+      from fv_stats.get_stat_all_tables_hist(g_ts, g_interval)
       where schemaname not in ('information_schema','pg_catalog','pg_toast')
         AND idx_scan IS NOT NULL
         AND seq_scan IS NOT NULL
@@ -326,15 +325,11 @@ begin
     END LOOP;
     perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) || chr(10) , true)  ;
 
-
-
-
 END;
 $$
 LANGUAGE plpgsql
 
-
-call fv_stats.generate_report (cast(extract (epoch from now()) as bigint), INTERVAL '5 days', 'awr.txt');
+--call fv_stats.generate_report (cast(extract (epoch from now()) as bigint), INTERVAL '5 days', 'awr.txt');
 
   
   
