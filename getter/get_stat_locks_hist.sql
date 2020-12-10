@@ -31,8 +31,11 @@ BEGIN
       slh. granted, slh.fastpath
     from 
       fv_stats.stat_locks_hist  slh
-    --where slh.ts in (select min(fb.ts) FROM fv_stats.find_between(g_ts) fb)      
-    WHERE slh.ts IN (select fb.ts from fv_stats.find_interval(g_ts, g_interval) fb)
+    --WHERE slh.ts IN (select fb.ts from fv_stats.find_interval(g_ts, g_interval) fb)
+    WHERE slh.ts BETWEEN
+      (select min(fb.ts) from fv_stats.find_interval(g_ts, g_interval) fb) 
+      and 
+      (select max(fb.ts) from fv_stats.find_interval(g_ts, g_interval) fb)   
     ;    
 END
 $$

@@ -21,19 +21,23 @@ $$
 BEGIN
     RETURN QUERY 
     select 
-      min(sath.ts) AS ts, max(sath.ts) AS ts, sath.relid, sath.schemaname, sath.relname, 
-      max(sath.heap_blks_read)-min(sath.heap_blks_read) as heap_blks_read,
-      max(sath.heap_blks_hit)-min(sath.heap_blks_hit) as heap_blks_hit,
-      max(sath.idx_blks_read)-min(sath.idx_blks_read) as idx_blks_read,
-      max(sath.idx_blks_hit)-min(sath.idx_blks_hit) as idx_blks_hit,
-      max(sath.toast_blks_read)-min(sath.toast_blks_read) as toast_blks_read,      
-      max(sath.toast_blks_read)-min(sath.toast_blks_read) as toast_blks_read,
-      max(sath.tidx_blks_read)-min(sath.tidx_blks_read) as tidx_blks_read,
-      max(sath.tidx_blks_hit)-min(sath.tidx_blks_hit) as tidx_blks_hit
+      min(sath.ts) AS begin_ts, 
+      max(sath.ts) AS end_ts, 
+      sath.relid, sath.schemaname, sath.relname, 
+      max(sath.heap_blks_read) - case when coalesce(min(sath.heap_blks_read),0)=max(sath.heap_blks_read) then 0 else coalesce(min(sath.heap_blks_read),0) end as heap_blks_read,
+      max(sath.heap_blks_hit) - case when coalesce(min(sath.heap_blks_hit),0)=max(sath.heap_blks_hit) then 0 else coalesce(min(sath.heap_blks_hit),0) end as heap_blks_hit,
+      max(sath.idx_blks_read) - case when coalesce(min(sath.idx_blks_read),0)=max(sath.idx_blks_read) then 0 else coalesce(min(sath.idx_blks_read),0) end as idx_blks_read,
+      max(sath.idx_blks_hit) - case when coalesce(min(sath.idx_blks_hit),0)=max(sath.idx_blks_hit) then 0 else coalesce(min(sath.idx_blks_hit),0) end as idx_blks_hit,
+      max(sath.toast_blks_read) - case when coalesce(min(sath.toast_blks_read),0)=max(sath.toast_blks_read) then 0 else coalesce(min(sath.toast_blks_read),0) end as toast_blks_read,      
+      max(sath.toast_blks_hit) - case when coalesce(min(sath.toast_blks_hit),0)=max(sath.toast_blks_hit) then 0 else coalesce(min(sath.toast_blks_hit),0) end as toast_blks_hit,
+      max(sath.tidx_blks_read) - case when coalesce(min(sath.tidx_blks_read),0)=max(sath.tidx_blks_read) then 0 else coalesce(min(sath.tidx_blks_read),0) end as tidx_blks_read,
+      max(sath.tidx_blks_hit) - case when coalesce(min(sath.tidx_blks_hit),0)=max(sath.tidx_blks_hit) then 0 else coalesce(min(sath.tidx_blks_hit),0) end as tidx_blks_hit
     from 
       fv_stats.statio_all_tables_hist  sath
-      --where sath.ts in (select fv_stats.find_between(g_ts))
-      WHERE sath.ts IN (select ts from fv_stats.find_interval(g_ts, g_interval))
+      WHERE sath.ts BETWEEN
+      (select min(fb.ts) from fv_stats.find_interval(g_ts, g_interval) fb) 
+      and 
+      (select max(fb.ts) from fv_stats.find_interval(g_ts, g_interval) fb)        
       --and sath.relname in ('pg_namespace')
     group by sath.relid, sath.schemaname, sath.relname;
     

@@ -151,8 +151,8 @@ select
   schemaname, relname, seq_scan, idx_scan, seq_tup_read, idx_tup_fetch 
 from fv_stats.get_stat_all_tables_hist( cast(extract (epoch from now()) as bigint), INTERVAL '1 hour')
 where schemaname not in ('information_schema','pg_catalog','pg_toast')
-  AND idx_scan IS NOT null
-  and seq_scan is not null
+  AND idx_scan IS NOT NULL
+  AND seq_scan IS NOT NULL
 order by 1 desc;
 
 --
@@ -160,7 +160,7 @@ order by 1 desc;
 --
 select 
   wait_event_type, wait_event, count(*) 
-from fv_stats.get_stat_activity_hist(cast(extract (epoch from now()) as bigint), INTERVAL '5 min') 
+from fv_stats.get_stat_activity_hist(cast(extract (epoch from now()) as bigint), INTERVAL '5 days') 
 group by wait_event_type, wait_event
 order by 3 desc
 ;
@@ -175,7 +175,7 @@ select
   local_blks_hit, local_blks_read, 
   temp_blks_read, temp_blks_written, 
   blk_read_time, blk_write_time, userid, queryid, query
-from fv_stats.get_stat_statements_hist(cast(extract (epoch from now()) as bigint), INTERVAL '1 day') 
+from fv_stats.get_stat_statements_hist(cast(extract (epoch from now()) as bigint), INTERVAL '5 day') 
 order by 1 desc
 ;
 

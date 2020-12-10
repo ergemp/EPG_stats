@@ -15,3 +15,15 @@ select
   to_timestamp(min(ts)) 
 from fv_stats.stat_activity_hist;
 --1	1607463000	2020-12-08T21:30:00.000Z	1607346900	2020-12-07T13:15:00.000Z
+
+
+
+select * from fv_stats.get_stat_activity_hist(cast(extract( epoch from now()) as bigint), interval '5 days');
+
+
+select count(*) from fv_stats.get_stat_activity_hist(cast(extract( epoch from now()) as bigint), interval '5 days');
+--298
+
+select ts, datid, datname, pid, count(*) from fv_stats.get_stat_activity_hist(cast(extract( epoch from now()) as bigint), interval '5 days')
+group by ts, datid, datname, pid
+;

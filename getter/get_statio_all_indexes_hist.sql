@@ -17,13 +17,17 @@ $$
 BEGIN
     RETURN QUERY 
     select 
-      min(saih.ts) AS ts, max(saih.ts) AS ts, saih.relid, saih.indexrelid, saih.schemaname, saih.relname, saih.indexrelname,
-      max(saih.idx_blks_read)-min(saih.idx_blks_read) as idx_blks_read,
-      max(saih.idx_blks_hit)-min(saih.idx_blks_hit) as idx_blks_hit
+      min(saih.ts) AS begin_ts, 
+      max(saih.ts) AS end_ts, 
+      saih.relid, saih.indexrelid, saih.schemaname, saih.relname, saih.indexrelname,
+      max(saih.idx_blks_read) - case when coalesce(min(saih.idx_blks_read),0)=max(saih.idx_blks_read) then 0 else coalesce(min(saih.idx_blks_read),0) end as idx_blks_read,
+      max(saih.idx_blks_hit) - case when coalesce(min(saih.idx_blks_hit),0)=max(saih.idx_blks_hit) then 0 else coalesce(min(saih.idx_blks_hit),0) end as idx_blks_hit
     from 
       fv_stats.statio_all_indexes_hist  saih
-      --where saih.ts in (select fv_stats.find_between(g_ts))
-      WHERE saih.ts IN (select ts from fv_stats.find_interval(g_ts, g_interval))
+      WHERE saih.ts BETWEEN
+      (select min(fb.ts) from fv_stats.find_interval(g_ts, g_interval) fb) 
+      and 
+      (select max(fb.ts) from fv_stats.find_interval(g_ts, g_interval) fb)  
       --and sath.relname in ('pg_namespace')
     group by saih.relid, saih.indexrelid, saih.schemaname, saih.relname, saih.indexrelname ;
     
