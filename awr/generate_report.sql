@@ -1,4 +1,4 @@
-DROP FUNCTION IF EXISTS fv_stats.generate_report(bigint, interval);
+--DROP FUNCTION IF EXISTS fv_stats.generate_report(bigint, interval);
 DROP FUNCTION IF EXISTS fv_stats.generate_report(bigint, interval, text);
 
 CREATE OR replace PROCEDURE fv_stats.generate_report(g_ts bigint, g_interval interval, g_filename text) AS 
