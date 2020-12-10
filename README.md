@@ -10,4 +10,28 @@ What was the performance bottleneck yesterday night between 23:00 and 03:00 hour
 And so on... 
 
 # Installation
-## Configuring 
+## Configuring statistics collector
+FV stats is highly dependent to the Postgresql native statistics collector. So at least the following tracking options should be enabled.
+
+You can configure the settings by editing the postgresql.conf file.
+
+```
+track_counts = on
+track_io_timing = on
+track_activities = on
+track_activity_query_size = 1024
+```
+
+Or, you can alter the system.
+
+```
+alter system set track_counts = on;
+alter system set track_io_timing = on;
+alter system set track_activities = on;
+alter system set track_activity_query_size = 1024;
+```
+
+
+
+
+
