@@ -39,6 +39,12 @@ create extension pg_stat_statements;
 select * from pg_extensions;
 select * from pg_stat_statements; 
 ```
+### Installing adminpack
+In order to be able to create text file based reports adminpack extension must be installed. 
+
+```
+create extension adminpack;
+```
 
 ## FV_stats installation
 Download the codes from this site. (https://github.com/ergemp/FV_stats/)
@@ -62,6 +68,16 @@ Without changing the current directory execute install/install.sh <your_database
 
 This script will create a schema named fv_stats and install its own repository there. 
 Do not forget to supply the name of your database. FV_stats ONLY works on the database it is installed in. 
+
+## Patching FV_stats with a new version
+After downloading and uncompressing the FV_stats from the github page, instead of installing from scratch you can just install the functions and keep you collected repository. To do this, run install/patch.sh instead of the installer. 
+
+```
+install/patch.sh <your_database_name>
+```
+
+
+# Examples 
 
 
 
