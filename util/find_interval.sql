@@ -1,3 +1,5 @@
+drop function if exists fv_stats.find_interval(bigint, interval);
+
 CREATE OR replace FUNCTION fv_stats.find_interval(g_ts bigint, g_interval interval) RETURNS TABLE (ts bigint) AS 
 $$
 DECLARE 
@@ -5,8 +7,6 @@ DECLARE
   begin_ts bigint;
   end_ts bigint;
 BEGIN
-    
-    
   act_ts := EXTRACT(epoch FROM (to_timestamp(g_ts) - g_interval));
   
   --SELECT min(ts), min(to_timestamp(ts)) FROM fv_stats.find_between(cast(extract (epoch from (now()-interval '1 hour')) as bigint));
@@ -24,7 +24,6 @@ BEGIN
   RETURN NEXT;
   ts := end_ts;
   RETURN NEXT;  
-    
 END
 $$
 LANGUAGE plpgsql

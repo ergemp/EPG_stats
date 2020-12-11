@@ -1,3 +1,5 @@
+drop procedure if exists fv_stats.drop_meta();
+
 create or replace procedure fv_stats.drop_meta()  as
 $$
 declare 

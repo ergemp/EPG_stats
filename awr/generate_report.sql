@@ -1,4 +1,3 @@
---DROP FUNCTION IF EXISTS fv_stats.generate_report(bigint, interval);
 DROP FUNCTION IF EXISTS fv_stats.generate_report(bigint, interval, text);
 
 CREATE OR replace PROCEDURE fv_stats.generate_report(g_ts bigint, g_interval interval, g_filename text) AS 
@@ -26,8 +25,7 @@ DECLARE
   top_wait_eventcount_cur record;
   seq_scan_tables record;
   table_cache_hit_ratio record;
-begin
-    
+begin    
     perform pg_catalog.pg_file_unlink(g_filename);
 
     select 

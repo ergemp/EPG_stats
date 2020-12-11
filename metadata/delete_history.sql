@@ -1,3 +1,5 @@
+drop procedure if exists fv_stats.delete_history(interval);
+
 create or replace procedure fv_stats.delete_history(g_interval interval)  as
 $$
 declare 

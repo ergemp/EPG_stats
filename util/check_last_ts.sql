@@ -1,4 +1,5 @@
---drop function if exists fv_stats.check_last_ts();
+drop function if exists fv_stats.check_last_ts();
+
 CREATE OR replace function fv_stats.check_last_ts() RETURNS TABLE(tts bigint, ttime timestamp) as
 $$
 declare
@@ -9,4 +10,5 @@ BEGIN
 end
 $$
 language plpgsql
+
 --select * from fv_stats.check_last_ts();
