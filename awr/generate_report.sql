@@ -6,22 +6,30 @@ DECLARE
   act_ts bigint;
   begin_time timestamp;
   end_time timestamp;
-  
   dbname text;
   dbcachehitratio numeric;
-  
   tempfiles numeric;
   tempmbs numeric;
-  
   totalcommits numeric;
   totalreadtimesec numeric;
   totalwritetimesec numeric;
-  
+  statslastreset timestamp with time zone;
+  databasesize text;
+  databaseblocksize text;
+
+  currenttimestamp timestamp with time zone;
+  currenttxid text;
+
+  oldest_current_xid  text;
+  autovacuum_freeze_max_age  text;
+  pct_towards_emergency_autovac  text;
+
   tablecachehitratio numeric;
   indexcachehitratio numeric;
 
   temp_query_cur record;
   long_query_cur record;
+  bloats_curr record;
   top_wait_eventcount_cur record;
   seq_scan_tables record;
   table_cache_hit_ratio record;
@@ -37,7 +45,8 @@ begin
       temp_bytes/1024/1024,
       xact_commit,
       blk_read_time/1000,
-      blk_write_time/1000
+      blk_write_time/1000,
+      stats_reset
       into 
       begin_time,
       end_time,
@@ -47,8 +56,24 @@ begin
       tempmbs,
       totalcommits,
       totalreadtimesec,
-      totalwritetimesec
+      totalwritetimesec,
+      statslastreset
     from fv_stats.get_stat_database_hist(g_ts, g_interval)
+    where datname = current_database();
+
+    select pg_size_pretty(pg_database_size(current_database())) into databasesize;
+    select current_setting('block_size') into databaseblocksize;
+    select current_timestamp, txid_current() into currenttimestamp, currenttxid ;
+
+    SELECT 
+      age(datfrozenxid),
+      current_setting('autovacuum_freeze_max_age') ,      
+      ROUND(100*(age(datfrozenxid)/current_setting('autovacuum_freeze_max_age')::float))
+      into 
+      oldest_current_xid,
+      autovacuum_freeze_max_age,
+      pct_towards_emergency_autovac
+    FROM pg_database 
     where datname = current_database();
 
     perform pg_catalog.pg_file_write(g_filename, '--------------- ' || chr(10) , true)  ;
@@ -61,15 +86,25 @@ begin
 
     perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) , true)  ;
     perform pg_catalog.pg_file_write(g_filename, 'Database Level Usage ' || chr(10) , true)  ;
-    perform pg_catalog.pg_file_write(g_filename, '---------------------' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) , true)  ;
     perform pg_catalog.pg_file_write(g_filename, 'Cache Hit Ratio: ' || dbcachehitratio || chr(10) , true)  ;
     perform pg_catalog.pg_file_write(g_filename, 'Total Used Temporary Files: ' || tempfiles || chr(10) , true)  ;
     perform pg_catalog.pg_file_write(g_filename, 'Total Used Temporary MBs: ' || tempmbs || chr(10) , true)  ;
     perform pg_catalog.pg_file_write(g_filename, 'Total Commits: ' || totalcommits || chr(10) , true)  ;
     perform pg_catalog.pg_file_write(g_filename, 'Total Read Time (Sec): ' || totalreadtimesec || chr(10) , true)  ;
     perform pg_catalog.pg_file_write(g_filename, 'Total Write Time (sec): ' || totalwritetimesec || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, 'Total Database Size (current): ' || databasesize || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, 'Total Database Block Size (current): ' || databaseblocksize || chr(10) , true)  ;    
+    perform pg_catalog.pg_file_write(g_filename, 'Current TXID (current): ' || currenttxid || chr(10) , true)  ;        
     perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) || chr(10) , true)  ;
     
+    perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, 'TX Wraparound (current) ' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, 'oldest_current_xid: ' || oldest_current_xid || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, 'autovacuum_freeze_max_age: ' || autovacuum_freeze_max_age || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, 'pct_towards_emergency_autovac: ' || pct_towards_emergency_autovac || chr(10) , true)  ; 
+    perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) || chr(10) , true)  ;
 
     perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) , true)  ;
     perform pg_catalog.pg_file_write(g_filename, 'Top 20 Wait events occured (counts) ' || chr(10) , true)  ;
@@ -208,7 +243,7 @@ begin
           round((from_cache::numeric / (from_disk + from_cache)::numeric)*100.0,2) as pct_cache_hits,
           (from_disk + from_cache) as total_hits
       FROM    (SELECT * FROM all_tables UNION ALL SELECT * FROM tables) a
-      ORDER   BY (case when table_name = 'all' then 0 else 1 end), from_disk desc
+      ORDER   BY (case when table_name = 'all' then 0 else 1 end), pct_disk_hits desc
       limit 20
       LOOP
         perform pg_catalog.pg_file_write(g_filename, format('%-50s',table_cache_hit_ratio.table_name) || chr(9), true)  ;
@@ -323,15 +358,88 @@ begin
     END LOOP;
     perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) || chr(10) , true)  ;
 
+
+
+    perform pg_catalog.pg_file_write(g_filename, '---------- ' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, 'Top 20 Bloat Usage By Tables (current)  ' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, '-----------' || chr(10) , true)  ;
+
+    perform pg_catalog.pg_file_write(g_filename, format('%-30s','current_database') || chr(9) || 
+                                                 format('%-30s','schema_name') || chr(9) || 
+                                                 format('%-30s','table_name') || chr(9) || 
+                                                 format('%-20s','tbloat') || chr(9) || 
+                                                 format('%-20s','wasted_bytes') || chr(9) ||
+                                                 format('%-20s','ibloat') || chr(9) ||
+                                                 format('%-20s','wastedibytes') || chr(10), true)  ;
+
+    FOR bloats_curr IN 
+        SELECT
+          current_database() as current_database, schemaname, tablename, /*reltuples::bigint, relpages::bigint, otta,*/
+          ROUND((CASE WHEN otta=0 THEN 0.0 ELSE sml.relpages::FLOAT/otta END)::NUMERIC,1) AS tbloat,
+          CASE WHEN relpages < otta THEN 0 ELSE bs*(sml.relpages-otta)::BIGINT END AS wastedbytes,
+          iname, /*ituples::bigint, ipages::bigint, iotta,*/
+          ROUND((CASE WHEN iotta=0 OR ipages=0 THEN 0.0 ELSE ipages::FLOAT/iotta END)::NUMERIC,1) AS ibloat,
+          CASE WHEN ipages < iotta THEN 0 ELSE bs*(ipages-iotta) END AS wastedibytes
+        FROM (
+          SELECT
+            schemaname, tablename, cc.reltuples, cc.relpages, bs,
+            CEIL((cc.reltuples*((datahdr+ma-
+              (CASE WHEN datahdr%ma=0 THEN ma ELSE datahdr%ma END))+nullhdr2+4))/(bs-20::FLOAT)) AS otta,
+            COALESCE(c2.relname,'?') AS iname, COALESCE(c2.reltuples,0) AS ituples, COALESCE(c2.relpages,0) AS ipages,
+            COALESCE(CEIL((c2.reltuples*(datahdr-12))/(bs-20::FLOAT)),0) AS iotta -- very rough approximation, assumes all cols
+          FROM (
+            SELECT
+              ma,bs,schemaname,tablename,
+              (datawidth+(hdr+ma-(CASE WHEN hdr%ma=0 THEN ma ELSE hdr%ma END)))::NUMERIC AS datahdr,
+              (maxfracsum*(nullhdr+ma-(CASE WHEN nullhdr%ma=0 THEN ma ELSE nullhdr%ma END))) AS nullhdr2
+            FROM (
+              SELECT
+                schemaname, tablename, hdr, ma, bs,
+                SUM((1-null_frac)*avg_width) AS datawidth,
+                MAX(null_frac) AS maxfracsum,
+                hdr+(
+                  SELECT 1+COUNT(*)/8
+                  FROM pg_stats s2
+                  WHERE null_frac<>0 AND s2.schemaname = s.schemaname AND s2.tablename = s.tablename
+              ) AS nullhdr
+              FROM pg_stats s, (
+                SELECT
+                  (SELECT current_setting('block_size')::NUMERIC) AS bs,
+                  CASE WHEN SUBSTRING(v,12,3) IN ('8.0','8.1','8.2') THEN 27 ELSE 23 END AS hdr,
+                  CASE WHEN v ~ 'mingw32' THEN 8 ELSE 4 END AS ma
+                FROM (SELECT version() AS v) AS foo
+              ) AS constants
+              GROUP BY 1,2,3,4,5
+            ) AS foo
+          ) AS rs
+          JOIN pg_class cc ON cc.relname = rs.tablename
+          JOIN pg_namespace nn ON cc.relnamespace = nn.oid AND nn.nspname = rs.schemaname AND nn.nspname <> 'information_schema'
+          LEFT JOIN pg_index i ON indrelid = cc.oid
+          LEFT JOIN pg_class c2 ON c2.oid = i.indexrelid
+        ) AS sml
+        ORDER BY wastedbytes desc
+        limit 20
+    LOOP
+
+        perform pg_catalog.pg_file_write(g_filename, format('%-30s',bloats_curr.current_database) || chr(9), true)  ;
+        perform pg_catalog.pg_file_write(g_filename, format('%-30s',bloats_curr.schemaname) || chr(9), true)  ;
+        perform pg_catalog.pg_file_write(g_filename, format('%-30s',bloats_curr.tablename) || chr(9), true)  ;
+        perform pg_catalog.pg_file_write(g_filename, format('%-20s',bloats_curr.tbloat) || chr(9), true)  ;
+        perform pg_catalog.pg_file_write(g_filename, format('%-20s',bloats_curr.wastedbytes) || chr(9), true)  ;
+        perform pg_catalog.pg_file_write(g_filename, format('%-20s',bloats_curr.ibloat) || chr(9), true)  ;
+        perform pg_catalog.pg_file_write(g_filename, format('%-20s',bloats_curr.wastedibytes) || chr(9), true)  ;
+        perform pg_catalog.pg_file_write(g_filename, chr(10) , true)  ;
+    END LOOP;
+    perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) || chr(10) , true)  ;
+
 END;
 $$
 LANGUAGE plpgsql
 
---call fv_stats.generate_report (cast(extract (epoch from now()) as bigint), INTERVAL '5 days', 'awr.txt');
+call fv_stats.generate_report (cast(extract (epoch from now()) as bigint), INTERVAL '5 days', 'awr.txt');
 
   
-  
-  
+
 
 
 
