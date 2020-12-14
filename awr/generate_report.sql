@@ -436,7 +436,7 @@ END;
 $$
 LANGUAGE plpgsql
 
-call fv_stats.generate_report (cast(extract (epoch from now()) as bigint), INTERVAL '5 days', 'awr.txt');
+--call fv_stats.generate_report (cast(extract (epoch from now()) as bigint), INTERVAL '5 days', 'awr.txt');
 
   
 
