@@ -37,7 +37,11 @@ update cron.job set database='postgres' where jobid=5;
 update cron.job set schedule='15,30,45,00 * * * *' where jobid=5;
 
 select * from cron.job;
-select * from cron.job_run_details;
+select * from cron.job_run_details order by runid desc;
+
+--disable a job
+update cron.job set active=false where jobid=5;
+
 
 --
 -- desc 
@@ -120,69 +124,16 @@ select * from fv_stats.get_stat_statements_hist(1606199201,INTERVAL '20 mins') ;
 select * from fv_stats.get_stat_activity_hist(1606199201,INTERVAL '20 mins') ;
 
 SELECT 
-  to_timestamp(begin_ts), to_timestamp(end_ts), 
-  * 
+  to_timestamp(begin_ts), to_timestamp(end_ts), * 
 FROM fv_stats.get_stat_all_tables_hist(1606223700, interval '30 min') order by seq_scan desc
 
 SELECT 
-  to_timestamp(begin_ts), to_timestamp(end_ts), 
-  * 
+  to_timestamp(begin_ts), to_timestamp(end_ts), * 
 FROM fv_stats.get_stat_all_indexes_hist(1606223700, interval '30 min') ;
 
-select to_timestamp(ts), * from fv_stats.get_stat_activity_hist(cast(extract (epoch from now()- interval '2 hour') as bigint),INTERVAL '30 mins') ;
+select 
+  to_timestamp(ts), * 
+from fv_stats.get_stat_activity_hist(cast(extract (epoch from now()- interval '2 hour') as bigint),INTERVAL '30 mins') ;
 
 select * from fv_stats.stat_bgwriter_hist sbh where ts = 1606197600
-
-select pg_switch_wal();
-
-
---
--- high level queries
---
-select idx_scan , case when (idx_scan + seq_scan) = 0 then 1 else (idx_scan + seq_scan) end, * from fv_stats.get_stat_all_tables_hist( cast(extract (epoch from now()) as bigint), INTERVAL '1 hour')
-  where schemaname not in ('information_schema','pg_catalog','pg_toast')
-order by seq_tup_read desc;
-
---
--- index_scan vs sequential_scan ratio
---
-select 
-  100 * seq_scan / case when (idx_scan + seq_scan) = 0 then 1 else (idx_scan + seq_scan) end as idx_scan_ratio, 
-  schemaname, relname, seq_scan, idx_scan, seq_tup_read, idx_tup_fetch 
-from fv_stats.get_stat_all_tables_hist( cast(extract (epoch from now()) as bigint), INTERVAL '1 hour')
-where schemaname not in ('information_schema','pg_catalog','pg_toast')
-  AND idx_scan IS NOT NULL
-  AND seq_scan IS NOT NULL
-order by 1 desc;
-
---
--- top wait events 
---
-select 
-  wait_event_type, wait_event, count(*) 
-from fv_stats.get_stat_activity_hist(cast(extract (epoch from now()) as bigint), INTERVAL '5 days') 
-group by wait_event_type, wait_event
-order by 3 desc
-;
-
---
--- top execution query
---
-select 
-  total_time / calls  as ms_per_execution, 
-  calls, total_time, mean_time, rows, 
-  shared_blks_hit, shared_blks_read, 
-  local_blks_hit, local_blks_read, 
-  temp_blks_read, temp_blks_written, 
-  blk_read_time, blk_write_time, userid, queryid, query
-from fv_stats.get_stat_statements_hist(cast(extract (epoch from now()) as bigint), INTERVAL '5 day') 
-order by 1 desc
-;
-
-
-select * from fv_stats.get_stat_statements_hist(cast(extract (epoch from now()) as bigint), INTERVAL '1 hour'); 
-select * from fv_stats.get_stat_all_tables_hist(1606223700) order by seq_scan desc;
-select * from fv_stats.get_stat_all_tables_hist(1606223700) order by seq_scan desc;
-
-
 
