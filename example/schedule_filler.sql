@@ -186,19 +186,3 @@ select * from fv_stats.get_stat_all_tables_hist(1606223700) order by seq_scan de
 
 
 
-select * from fv_stats.stat_database_hist 
-where datname = current_database()
-order by ts desc;
-
-
-select current_setting('block_size')
-
-
-
-
-
-
-
-
-
-

@@ -30,6 +30,7 @@ DECLARE
   temp_query_cur record;
   long_query_cur record;
   bloats_curr record;
+  table_wraparound_curr record;
   top_wait_eventcount_cur record;
   seq_scan_tables record;
   table_cache_hit_ratio record;
@@ -168,7 +169,7 @@ begin
     --
     perform pg_catalog.pg_file_write(g_filename,format('%-20s','seq_scan_ratio') || chr(9) || 
                                                 format('%-50s','schemaname') || chr(9) || 
-                                                format('%-50s','relname') || chr(9) || 
+                                                format('%-60s','relname') || chr(9) || 
                                                 format('%-20s','seq_scan') || chr(9) || 
                                                 format('%-20s','idx_scan') || chr(9) || 
                                                 format('%-20s','seq_tup_read') || chr(9) || 
@@ -192,7 +193,7 @@ begin
     LOOP
         perform pg_catalog.pg_file_write(g_filename, format('%-20s', seq_scan_tables.seq_scan_ratio) || chr(9), true)  ;
         perform pg_catalog.pg_file_write(g_filename, format('%-50s',seq_scan_tables.schemaname) || chr(9) , true)  ;
-        perform pg_catalog.pg_file_write(g_filename, format('%-50s',seq_scan_tables.relname) || chr(9) , true)  ;
+        perform pg_catalog.pg_file_write(g_filename, format('%-60s',seq_scan_tables.relname) || chr(9) , true)  ;
         perform pg_catalog.pg_file_write(g_filename, format('%-20s',seq_scan_tables.seq_scan) || chr(9) , true)  ;
         perform pg_catalog.pg_file_write(g_filename, format('%-20s',seq_scan_tables.idx_scan) || chr(9) , true)  ;
         perform pg_catalog.pg_file_write(g_filename, format('%-20s',seq_scan_tables.seq_tup_read) || chr(9) , true)  ;
@@ -333,7 +334,7 @@ begin
           local_blks_hit, local_blks_read, 
           temp_blks_read, temp_blks_written, 
           blk_read_time, blk_write_time, userid, queryid,
-          substring(replace(query,chr(10),' '),0,200) AS query
+          substring(replace(replace(query,chr(10),' '),chr(13),' '),0,200) AS query
         from fv_stats.get_stat_statements_hist(g_ts, g_interval) 
         order by 1 desc
         limit 20
@@ -358,28 +359,31 @@ begin
     END LOOP;
     perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) || chr(10) , true)  ;
 
-
-
     perform pg_catalog.pg_file_write(g_filename, '---------- ' || chr(10) , true)  ;
     perform pg_catalog.pg_file_write(g_filename, 'Top 20 Bloat Usage By Tables (current)  ' || chr(10) , true)  ;
     perform pg_catalog.pg_file_write(g_filename, '-----------' || chr(10) , true)  ;
 
     perform pg_catalog.pg_file_write(g_filename, format('%-30s','current_database') || chr(9) || 
                                                  format('%-30s','schema_name') || chr(9) || 
-                                                 format('%-30s','table_name') || chr(9) || 
+                                                 format('%-60s','table_name') || chr(9) || 
                                                  format('%-20s','tbloat') || chr(9) || 
                                                  format('%-20s','wasted_bytes') || chr(9) ||
-                                                 format('%-20s','ibloat') || chr(9) ||
-                                                 format('%-20s','wastedibytes') || chr(10), true)  ;
+                                                 --format('%-20s','iname') || chr(9) ||
+                                                 --format('%-20s','ibloat') || chr(9) ||
+                                                 --format('%-20s','wastedibytes') || 
+                                                 chr(10), true)  ;
 
     FOR bloats_curr IN 
         SELECT
-          current_database() as current_database, schemaname, tablename, /*reltuples::bigint, relpages::bigint, otta,*/
+          distinct
+          current_database() as current_database, 
+          schemaname, 
+          tablename, /*reltuples::bigint, relpages::bigint, otta,*/
           ROUND((CASE WHEN otta=0 THEN 0.0 ELSE sml.relpages::FLOAT/otta END)::NUMERIC,1) AS tbloat,
-          CASE WHEN relpages < otta THEN 0 ELSE bs*(sml.relpages-otta)::BIGINT END AS wastedbytes,
-          iname, /*ituples::bigint, ipages::bigint, iotta,*/
-          ROUND((CASE WHEN iotta=0 OR ipages=0 THEN 0.0 ELSE ipages::FLOAT/iotta END)::NUMERIC,1) AS ibloat,
-          CASE WHEN ipages < iotta THEN 0 ELSE bs*(ipages-iotta) END AS wastedibytes
+          CASE WHEN relpages < otta THEN 0 ELSE bs*(sml.relpages-otta)::BIGINT END AS wastedbytes
+          --iname, /*ituples::bigint, ipages::bigint, iotta,*/
+          --ROUND((CASE WHEN iotta=0 OR ipages=0 THEN 0.0 ELSE ipages::FLOAT/iotta END)::NUMERIC,1) AS ibloat,
+          --CASE WHEN ipages < iotta THEN 0 ELSE bs*(ipages-iotta) END AS wastedibytes
         FROM (
           SELECT
             schemaname, tablename, cc.reltuples, cc.relpages, bs,
@@ -420,14 +424,47 @@ begin
         ORDER BY wastedbytes desc
         limit 20
     LOOP
-
         perform pg_catalog.pg_file_write(g_filename, format('%-30s',bloats_curr.current_database) || chr(9), true)  ;
         perform pg_catalog.pg_file_write(g_filename, format('%-30s',bloats_curr.schemaname) || chr(9), true)  ;
-        perform pg_catalog.pg_file_write(g_filename, format('%-30s',bloats_curr.tablename) || chr(9), true)  ;
+        perform pg_catalog.pg_file_write(g_filename, format('%-60s',bloats_curr.tablename) || chr(9), true)  ;
         perform pg_catalog.pg_file_write(g_filename, format('%-20s',bloats_curr.tbloat) || chr(9), true)  ;
         perform pg_catalog.pg_file_write(g_filename, format('%-20s',bloats_curr.wastedbytes) || chr(9), true)  ;
-        perform pg_catalog.pg_file_write(g_filename, format('%-20s',bloats_curr.ibloat) || chr(9), true)  ;
-        perform pg_catalog.pg_file_write(g_filename, format('%-20s',bloats_curr.wastedibytes) || chr(9), true)  ;
+        --perform pg_catalog.pg_file_write(g_filename, format('%-20s',bloats_curr.iname) || chr(9), true)  ;
+        --perform pg_catalog.pg_file_write(g_filename, format('%-20s',bloats_curr.ibloat) || chr(9), true)  ;
+        --perform pg_catalog.pg_file_write(g_filename, format('%-20s',bloats_curr.wastedibytes) || chr(9), true)  ;
+        perform pg_catalog.pg_file_write(g_filename, chr(10) , true)  ;
+    END LOOP;
+    perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) || chr(10) , true)  ;
+
+    perform pg_catalog.pg_file_write(g_filename, '---------- ' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, 'Top 20 Closest Tables to Wraparound (current)  ' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, '-----------' || chr(10) , true)  ;
+
+    perform pg_catalog.pg_file_write(g_filename, 
+                                                 format('%-30s','schema_name') || chr(9) || 
+                                                 format('%-60s','table_name') || chr(9) || 
+                                                 format('%-20s','age') || chr(9) || 
+                                                 format('%-20s','tablesize') || chr(9) ||
+                                                 --format('%-20s','iname') || chr(9) ||
+                                                 --format('%-20s','ibloat') || chr(9) ||
+                                                 --format('%-20s','wastedibytes') || 
+                                                 chr(10), true)  ;
+    FOR table_wraparound_curr IN 
+        SELECT 
+            n.oid::regclass as tablespacename,
+            c.oid::regclass as tablename,
+            age(c.relfrozenxid) as age,
+            pg_size_pretty(pg_total_relation_size(c.oid)) as tablesize
+        FROM pg_class c
+        JOIN pg_namespace n on c.relnamespace = n.oid
+        WHERE relkind IN ('r', 't', 'm') 
+        AND n.nspname NOT IN ('pg_toast')
+        ORDER BY 3 DESC LIMIT 20
+    LOOP
+        perform pg_catalog.pg_file_write(g_filename, format('%-30s',table_wraparound_curr.tablespacename) || chr(9), true)  ;
+        perform pg_catalog.pg_file_write(g_filename, format('%-60s',table_wraparound_curr.tablename) || chr(9), true)  ;
+        perform pg_catalog.pg_file_write(g_filename, format('%-20s',table_wraparound_curr.age) || chr(9), true)  ;
+        perform pg_catalog.pg_file_write(g_filename, format('%-20s',table_wraparound_curr.tablesize) || chr(9), true)  ;
         perform pg_catalog.pg_file_write(g_filename, chr(10) , true)  ;
     END LOOP;
     perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) || chr(10) , true)  ;
