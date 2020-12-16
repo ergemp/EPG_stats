@@ -39,7 +39,7 @@ create extension pg_stat_statements;
 select * from pg_extensions;
 select * from pg_stat_statements; 
 ```
-### Installing adminpack
+## Installing adminpack
 In order to be able to create text file based reports adminpack extension must be installed. 
 
 ```
@@ -78,6 +78,21 @@ install/patch.sh <your_database_name>
 
 
 # Examples 
+
+## Filling up the repo
+In order to start filling up the repository run the ```call fv_stats.fill_meta();``` command. The more frequently you run, more granular information you can get, but this also means more data to gather and ends up space consumption. Every 30 minutes for filling the repository is enough for most of the cases. 
+
+## Gathering the performance report
+To generate a report run the fv_stats.generate_report procedure with the required parameters. 
+
+The following command will generate an overview report of the postgresql database for the last one day. 
+```call fv_stats.generate_report (cast(extract (epoch from now()) as bigint), INTERVAL '1 days', 'awr.txt');```
+
+
+
+
+
+
 
 
 
