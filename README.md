@@ -86,7 +86,10 @@ In order to start filling up the repository run the ```call fv_stats.fill_meta()
 To generate a report run the fv_stats.generate_report procedure with the required parameters. 
 
 The following command will generate an overview report of the postgresql database for the last one day. 
-```call fv_stats.generate_report (cast(extract (epoch from now()) as bigint), INTERVAL '1 days', 'awr.txt');```
+
+```
+call fv_stats.generate_report (cast(extract (epoch from now()) as bigint), INTERVAL '1 days', 'awr.txt');
+```
 
 
 
