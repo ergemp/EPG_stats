@@ -85,13 +85,13 @@ In order to start filling up the repository run the ```call fv_stats.fill_meta()
 ## Gathering the performance report
 To generate a report run the fv_stats.generate_report procedure with the required parameters. 
 
-The following command will generate an overview report of the postgresql database for the last one day. 
+The following command will generate an overview report of the postgresql database for the last one day. The awr.txt file should be created in the $PGDATA directory. 
 
 ```
 call fv_stats.generate_report (cast(extract (epoch from now()) as bigint), INTERVAL '1 days', 'awr.txt');
 ```
 
-
+Sample report can be found in the "sample" directory. 
 
 
 
