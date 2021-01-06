@@ -1,0 +1,290 @@
+--------------- 
+Report Summary 
+--------------- 
+database name: postgres
+begin snapshot: 2021-01-06 13:20:44
+end snapshot: 2021-01-06 14:24:42
+--------------- 
+
+-------------------- 
+Database Level Usage 
+-------------------- 
+Cache Hit Ratio: 99.12
+Total Used Temporary Files: 0
+Total Used Temporary MBs: 0
+Total Commits: 387
+Total Read Time (Sec): 0.0610649999999996
+Total Write Time (sec): 0.001228
+Total Database Size (current): 192 MB
+Total Database Block Size (current): 8192
+Current TXID (current): 5686
+-------------------- 
+
+-------------------- 
+TX Wraparound (current) 
+-------------------- 
+oldest_current_xid: 5207
+autovacuum_freeze_max_age: 200000000
+pct_towards_emergency_autovac: 0
+-------------------- 
+
+-------------------- 
+Top 20 Wait events occured (counts) 
+---------------------
+wait_event_type                                   	wait_event                                        	total_waits
+Client                                            	ClientRead                                        	9	
+Activity                                          	LogicalLauncherMain                               	3	
+Activity                                          	WalWriterMain                                     	3	
+Activity                                          	CheckpointerMain                                  	3	
+Activity                                          	AutoVacuumMain                                    	3	
+Extension                                         	Extension                                         	3	
+Activity                                          	BgWriterMain                                      	3	
+-------------------- 
+
+------------------
+Memory Efficiency 
+------------------
+Table Cache Hit Ratio: 95.68
+Index Cache Hit Ratio: 99.13
+
+--------------
+IO Efficiency 
+--------------
+--------------
+Top 20 Seq Scan Tables 
+--------------
+seq_scan_ratio      	schemaname                                        	relname                                                     	seq_scan            	idx_scan            	seq_tup_read        	idx_tup_fetch       
+100                 	fv_stats                                          	stat_locks_hist                                             	2                   	0                   	1332                	0                   	
+100                 	fv_stats                                          	stat_all_indexes_hist                                       	2                   	0                   	6840                	0                   	
+100                 	public                                            	p_table_202011                                              	1                   	0                   	0                   	0                   	
+100                 	fv_stats                                          	pg_settings_hist                                            	16                  	0                   	7238                	0                   	
+100                 	public                                            	customers                                                   	2                   	0                   	0                   	0                   	
+91                  	cron                                              	job                                                         	11                  	1                   	11                  	1                   	
+83                  	fv_stats                                          	stat_all_tables_hist                                        	5                   	1                   	25016               	32481               	
+69                  	fv_stats                                          	stat_activity_hist                                          	288                 	128                 	14250               	123                 	
+66                  	fv_stats                                          	stat_archiver_hist                                          	2                   	1                   	227                 	28                  	
+66                  	fv_stats                                          	stat_bgwriter_hist                                          	2                   	1                   	227                 	28                  	
+60                  	fv_stats                                          	stat_database_hist                                          	34                  	22                  	11991               	12068               	
+57                  	fv_stats                                          	statio_all_indexes_hist                                     	27                  	20                  	182400              	257450              	
+38                  	fv_stats                                          	stat_statements_hist                                        	70                  	114                 	1410134             	4847871             	
+30                  	fv_stats                                          	statio_all_tables_hist                                      	27                  	63                  	138892              	653180              	
+7                   	cron                                              	job_run_details                                             	64                  	796                 	17116               	1438                	
+0                   	public                                            	tags                                                        	0                   	0                   	0                   	0                   	
+0                   	public                                            	foo                                                         	0                   	0                   	0                   	0                   	
+0                   	public                                            	bar                                                         	0                   	0                   	0                   	0                   	
+0                   	public                                            	mytable                                                     	0                   	0                   	0                   	0                   	
+0                   	public                                            	categories                                                  	0                   	0                   	0                   	0                   	
+-------------------- 
+
+--------------
+Cache HIT Ratio for tables 
+--------------
+table_name                                        	disk_hits           	pct_disk_hits       	pct_cache_hits      	total_hits          
+all                                               	6866                	2.24                	97.76               	306370              	
+end_ts                                            	1                   	100.00              	0.00                	1                   	
+pg_ts_config                                      	5                   	83.33               	16.67               	6                   	
+pg_shdepend                                       	40                  	78.43               	21.57               	51                  	
+pg_toast_1255                                     	44                  	55.00               	45.00               	80                  	
+pg_event_trigger                                  	8                   	53.33               	46.67               	15                  	
+job                                               	11                  	50.00               	50.00               	22                  	
+stat_archiver_hist                                	4                   	50.00               	50.00               	8                   	
+stat_bgwriter_hist                                	4                   	50.00               	50.00               	8                   	
+stat_all_tables_hist                              	909                 	48.45               	51.55               	1876                	
+pg_auth_members                                   	5                   	45.45               	54.55               	11                  	
+pg_toast_2619                                     	328                 	44.03               	55.97               	745                 	
+pg_description                                    	345                 	43.56               	56.44               	792                 	
+pg_depend                                         	138                 	40.83               	59.17               	338                 	
+stat_all_indexes_hist                             	695                 	36.62               	63.38               	1898                	
+statio_all_indexes_hist                           	606                 	33.39               	66.61               	1815                	
+stat_database_hist                                	21                  	31.82               	68.18               	66                  	
+pg_language                                       	37                  	30.58               	69.42               	121                 	
+pg_statistic                                      	834                 	30.58               	69.42               	2727                	
+pg_default_acl                                    	5                   	29.41               	70.59               	17                  	
+-------------------- 
+
+---------- 
+Temp Usage 
+-----------
+---------- 
+Top 10 Temp Usage By Queries  
+-----------
+total_exec_time     	ncalls              	avg_exec_time_sec   	sync_io_time        	temp_blks_written   	queryid             	query
+00:05:07.546254     	1                   	307.546             	00:00:00            	1708985             	-6750494910283125550	select count(*) from generate_series($1,$2)	
+00:00:02.305363     	34                  	0.068               	00:00:00            	1722                	-6866405809262837016	SELECT       INTERVAL $1 * total_time AS total_exec_time,       to_char(calls,       $2) AS ncalls,       total_time / calls AS avg_exec_time_ms,       INTERVAL $3 * (blk_read_time + blk_write_time) 	
+-------------------- 
+
+---------- 
+Top 20 Long Running Queries  
+-----------
+ms_per_execution    	ncalls              	total_exec_time     	mean_time           	rrows               	shared_blks_hit     	shared_blks_read    	local_blks_hit      	local_blks_read     	temp_blks_read      	temp_blks_written   	blk_read_time       	blk_write_time      	userid              	queryid             	query
+00:05:07.546254     	1                   	00:05:07.546254     	307546.253935       	1                   	0                   	0                   	0                   	0                   	1708985             	1708985             	0                   	0                   	10                  	-6750494910283125550	select count(*) from generate_series($1,$2)	
+00:00:10.002664     	1                   	00:00:10.002664     	10002.664048        	1                   	0                   	0                   	0                   	0                   	0                   	0                   	0                   	0                   	10                  	8068993708030807443 	select pg_sleep($1)	
+00:00:01.059534     	36                  	00:00:38.143214     	1059.533723861111   	0                   	849289              	6078                	0                   	0                   	0                   	0                   	359.026633          	0                   	10                  	-5681644712092851912	call fv_stats.generate_report (cast(extract (epoch from now()) as bigint), INTERVAL '5 days', 'awr.txt')	
+00:00:00.267041     	1                   	00:00:00.267041     	267.040623          	1103                	5017                	0                   	0                   	0                   	0                   	0                   	0                   	0                   	10                  	1393185775581162029 	select    total_time / calls  as ms_per_execution,    calls, total_time, mean_time, rows,    shared_blks_hit, shared_blks_read,    local_blks_hit, local_blks_read,    temp_blks_read, temp_blks_writte	
+00:00:00.206209     	1                   	00:00:00.206209     	206.209473          	0                   	51565               	97                  	0                   	0                   	0                   	0                   	12.170055           	0                   	10                  	7771554236574480544 	-- new table bloat query -- still needs work; is often off by +/- 20% WITH constants AS (     -- define some constants for sizes of things     -- for reference down the query and easy maintenance    	
+00:00:00.175181     	1                   	00:00:00.175181     	175.18084           	0                   	725                 	0                   	0                   	0                   	0                   	0                   	0                   	0                   	10                  	-2709622946360222414	create extension adminpack	
+00:00:00.166255     	1                   	00:00:00.166255     	166.25549           	0                   	538                 	20                  	0                   	0                   	0                   	0                   	8.726845            	0                   	10                  	836501737033852070  	create extension pg_buffercache	
+00:00:00.153416     	2                   	00:00:00.306833     	0.6944975445617843  	0                   	16247               	62                  	0                   	0                   	0                   	0                   	25.45456999999999   	0                   	10                  	5672243313282487451 	call fv_stats.fill_meta()	
+00:00:00.147732     	1                   	00:00:00.147732     	147.73207           	4                   	6812                	5984                	0                   	0                   	0                   	0                   	50.813652           	0                   	10                  	4001362866617923166 	SELECT fv_stats.get_stat_statements_hist(cast(extract ($1 from now()) as bigint), INTERVAL $2)	
+00:00:00.131239     	1                   	00:00:00.131239     	131.238809          	1                   	0                   	0                   	0                   	0                   	0                   	0                   	0                   	0                   	10                  	2321484590536574217 	select pg_switch_wal()	
+00:00:00.129428     	3                   	00:00:00.388284     	129.42799133333332  	210                 	4834                	0                   	0                   	0                   	0                   	0                   	0                   	0                   	10                  	-1390426466902860386	select * from      (     select        min(ssh.ts), to_timestamp(min(ssh.ts)), max(ssh.ts), to_timestamp(max(ssh.ts)),       ssh.userid, ssh.dbid, ssh.queryid, ssh.query,        max(ssh.calls) - coal	
+00:00:00.129361     	1                   	00:00:00.129361     	129.360946          	68                  	1558                	0                   	0                   	0                   	0                   	0                   	0                   	0                   	10                  	-4950427257357498541	select * from      (     select        min(ssh.ts), to_timestamp(min(ssh.ts)), max(ssh.ts), to_timestamp(max(ssh.ts)),       ssh.userid, ssh.dbid, ssh.queryid, ssh.query,        max(ssh.calls) - coal	
+00:00:00.108829     	1                   	00:00:00.108829     	108.829077          	0                   	2753                	197                 	0                   	0                   	0                   	0                   	65.416793           	0                   	16384               	1575549026148074409 	create extension pg_cron	
+00:00:00.107414     	4                   	00:00:00.429658     	107.41455525        	270                 	5573                	0                   	0                   	0                   	0                   	0                   	0                   	0                   	10                  	8717959836926484776 	select * from      (     select        min(ssh.ts), max(ssh.ts),        ssh.userid, ssh.dbid, ssh.queryid, ssh.query,        max(ssh.calls) - coalesce(min(ssh.calls),$1) as calls,        max(ssh.tota	
+00:00:00.099108     	2                   	00:00:00.198217     	99.108267           	8                   	1192                	0                   	0                   	0                   	0                   	0                   	0                   	0                   	10                  	3008160175672503516 	select * from  ( SELECT classid::regclass AS "depender object class",     CASE classid         WHEN $1::regclass THEN textin(regclassout(objid::regclass))         WHEN $2::regclass THEN textin(regtyp	
+00:00:00.096847     	2                   	00:00:00.193694     	96.84725            	54                  	13076               	11680               	0                   	0                   	0                   	0                   	40.766892           	0                   	10                  	-1846523141027475455	-- -- top execution query -- select    total_time / calls  as ms_per_execution,    calls, total_time, mean_time, rows,    shared_blks_hit, shared_blks_read,    local_blks_hit, local_blks_read,    tem	
+00:00:00.093028     	1                   	00:00:00.093028     	93.02776899999999   	0                   	17744               	10                  	0                   	0                   	0                   	0                   	2.21296             	0                   	10                  	854253379117839585  	select * from  ( SELECT classid::regclass AS "depender object class",     CASE classid         WHEN $1::regclass THEN textin(regclassout(objid::regclass))         WHEN $2::regclass THEN textin(regtyp	
+00:00:00.091971     	9                   	00:00:00.827737     	0.6773767805186566  	27117               	154826              	502                 	0                   	0                   	0                   	0                   	86.900924           	0                   	10                  	4510812036381155879 	SELECT n.nspname as "schema",         p.proname as "name",         d.description,         pg_catalog.pg_get_function_result(p.oid) as "result_type",         pg_catalog.pg_get_function_arguments(p.oid	
+00:00:00.091445     	1                   	00:00:00.091445     	91.44523699999999   	3055                	241                 	4                   	0                   	0                   	0                   	0                   	0.883498            	0                   	10                  	-2798780095778881480	SELECT r.routine_schema, r.routine_name , string_agg(p.udt_name, $1 ORDER BY p.ordinal_position) AS object_info FROM information_schema.routines r LEFT JOIN information_schema.parameters p ON r.speci	
+00:00:00.089956     	1                   	00:00:00.089956     	89.955884           	3                   	67                  	0                   	0                   	0                   	0                   	0                   	0                   	0                   	10                  	3555987154634575914 	select * from  ( SELECT classid::regclass AS "depender object class",     CASE classid         WHEN $1::regclass THEN textin(regclassout(objid::regclass))         WHEN $2::regclass THEN textin(regtyp	
+-------------------- 
+
+---------- 
+Top 20 Bloat Usage By Tables (current)  
+-----------
+current_database              	schema_name                   	table_name                                                  	tbloat              	wasted_bytes        	
+postgres                      	fv_stats                      	stat_statements_hist                                        	1.0                 	2842624             	
+postgres                      	fv_stats                      	stat_all_indexes_hist                                       	1.1                 	516096              	
+postgres                      	fv_stats                      	statio_all_indexes_hist                                     	1.0                 	221184              	
+postgres                      	pg_catalog                    	pg_proc                                                     	1.1                 	81920               	
+postgres                      	pg_catalog                    	pg_attribute                                                	1.1                 	73728               	
+postgres                      	pg_catalog                    	pg_depend                                                   	1.1                 	57344               	
+postgres                      	cron                          	job_run_details                                             	1.1                 	8192                	
+postgres                      	fv_stats                      	pg_settings_hist                                            	1.1                 	8192                	
+postgres                      	fv_stats                      	stat_bgwriter_hist                                          	1.3                 	8192                	
+postgres                      	pg_catalog                    	pg_class                                                    	1.1                 	8192                	
+postgres                      	pg_catalog                    	pg_conversion                                               	1.5                 	8192                	
+postgres                      	pg_catalog                    	pg_description                                              	1.0                 	8192                	
+postgres                      	pg_catalog                    	pg_rewrite                                                  	1.1                 	8192                	
+postgres                      	fv_stats                      	stat_activity_hist                                          	1.0                 	0                   	
+postgres                      	fv_stats                      	stat_all_tables_hist                                        	0.9                 	0                   	
+postgres                      	fv_stats                      	stat_archiver_hist                                          	1.0                 	0                   	
+postgres                      	fv_stats                      	stat_database_hist                                          	0.9                 	0                   	
+postgres                      	fv_stats                      	stat_locks_hist                                             	0.9                 	0                   	
+postgres                      	fv_stats                      	statio_all_tables_hist                                      	0.9                 	0                   	
+postgres                      	pg_catalog                    	pg_aggregate                                                	1.0                 	0                   	
+-------------------- 
+
+---------- 
+Top 20 Closest Tables to Wraparound (current)  
+-----------
+schema_name                   	table_name                                                  	age                 	tablesize           	
+11                            	pg_amop                                                     	5207                	192 kB              	
+11                            	pg_am                                                       	5207                	72 kB               	
+11                            	pg_opclass                                                  	5207                	80 kB               	
+11                            	pg_opfamily                                                 	5207                	80 kB               	
+11                            	pg_inherits                                                 	5207                	40 kB               	
+11                            	pg_attribute                                                	5207                	1048 kB             	
+11                            	pg_index                                                    	5207                	104 kB              	
+11                            	pg_constraint                                               	5207                	128 kB              	
+11                            	pg_operator                                                 	5207                	224 kB              	
+11                            	pg_proc                                                     	5207                	1328 kB             	
+11                            	pg_statistic                                                	5207                	1032 kB             	
+11                            	pg_foreign_server                                           	5207                	48 kB               	
+11                            	pg_authid                                                   	5207                	80 kB               	
+11                            	pg_type                                                     	5207                	216 kB              	
+11                            	pg_statistic_ext_data                                       	5207                	16 kB               	
+11                            	pg_attrdef                                                  	5207                	48 kB               	
+11                            	pg_class                                                    	5207                	264 kB              	
+11                            	pg_user_mapping                                             	5207                	48 kB               	
+11                            	pg_subscription                                             	5207                	24 kB               	
+11                            	pg_amproc                                                   	5207                	120 kB              	
+-------------------- 
+
+---------- 
+Top 20 Largest Tables (current)  
+-----------
+schema_name                   	relation_name                                               	total_size          	
+fv_stats                      	stat_statements_hist                                        	154 MB              	
+fv_stats                      	stat_all_tables_hist                                        	7760 kB             	
+fv_stats                      	stat_all_indexes_hist                                       	6712 kB             	
+fv_stats                      	statio_all_indexes_hist                                     	6072 kB             	
+fv_stats                      	statio_all_tables_hist                                      	5040 kB             	
+fv_stats                      	stat_locks_hist                                             	1120 kB             	
+fv_stats                      	stat_database_hist                                          	392 kB              	
+fv_stats                      	stat_activity_hist                                          	376 kB              	
+fv_stats                      	pg_settings_hist                                            	176 kB              	
+cron                          	job_run_details                                             	152 kB              	
+fv_stats                      	stat_archiver_hist                                          	80 kB               	
+fv_stats                      	stat_bgwriter_hist                                          	72 kB               	
+cron                          	job                                                         	48 kB               	
+public                        	pi_postgres                                                 	32 kB               	
+public                        	mytable                                                     	32 kB               	
+public                        	categories                                                  	32 kB               	
+public                        	foo                                                         	24 kB               	
+public                        	bar                                                         	24 kB               	
+public                        	t_test                                                      	24 kB               	
+public                        	customers                                                   	24 kB               	
+-------------------- 
+
+---------- 
+General Parameters 
+-----------
+name                          	setting                       	category                                                    	
+authentication_timeout        	60                            	Connections and Authentication / Authentication             	
+autovacuum_work_mem           	-1                            	Resource Usage / Memory                                     	
+cluster_name                  	                              	Process Title                                               	
+effective_cache_size          	524288                        	Query Tuning / Planner Cost Constants                       	
+maintenance_work_mem          	65536                         	Resource Usage / Memory                                     	
+max_connections               	100                           	Connections and Authentication / Connection Settings        	
+port                          	5432                          	Connections and Authentication / Connection Settings        	
+shared_buffers                	16384                         	Resource Usage / Memory                                     	
+superuser_reserved_connections	3                             	Connections and Authentication / Connection Settings        	
+temp_buffers                  	1024                          	Resource Usage / Memory                                     	
+update_process_title          	on                            	Process Title                                               	
+wal_buffers                   	512                           	Write-Ahead Log / Settings                                  	
+-------------------- 
+
+---------- 
+Autovacuum Parameters 
+-----------
+name                          	setting                       	category                                                    	
+autovacuum_freeze_max_age     	200000000                     	Autovacuum                                                  	
+autovacuum_max_workers        	3                             	Autovacuum                                                  	
+autovacuum_naptime            	60                            	Autovacuum                                                  	
+autovacuum_vacuum_cost_delay  	2                             	Autovacuum                                                  	
+autovacuum_vacuum_cost_limit  	-1                            	Autovacuum                                                  	
+autovacuum_vacuum_scale_factor	0.2                           	Autovacuum                                                  	
+maintenance_work_mem          	65536                         	Resource Usage / Memory                                     	
+vacuum_cost_page_dirty        	20                            	Resource Usage / Cost-Based Vacuum Delay                    	
+vacuum_cost_page_hit          	1                             	Resource Usage / Cost-Based Vacuum Delay                    	
+vacuum_cost_page_miss         	10                            	Resource Usage / Cost-Based Vacuum Delay                    	
+vacuum_freeze_min_age         	50000000                      	Client Connection Defaults / Statement Behavior             	
+-------------------- 
+
+---------- 
+Parallel Processes Parameters 
+-----------
+name                          	setting                       	category                                                    	
+force_parallel_mode           	off                           	Query Tuning / Other Planner Options                        	
+maintenance_work_mem          	65536                         	Resource Usage / Memory                                     	
+max_parallel_workers          	8                             	Resource Usage / Asynchronous Behavior                      	
+max_parallel_workers_per_gather	2                             	Resource Usage / Asynchronous Behavior                      	
+max_worker_processes          	8                             	Resource Usage / Asynchronous Behavior                      	
+min_parallel_index_scan_size  	64                            	Query Tuning / Planner Cost Constants                       	
+min_parallel_table_scan_size  	1024                          	Query Tuning / Planner Cost Constants                       	
+parallel_setup_cost           	1000                          	Query Tuning / Planner Cost Constants                       	
+parallel_tuple_cost           	0.1                           	Query Tuning / Planner Cost Constants                       	
+work_mem                      	4096                          	Resource Usage / Memory                                     	
+-------------------- 
+
+---------- 
+WAL Parameters
+-----------
+name                          	setting                       	category                                                    	
+checkpoint_completion_target  	0.5                           	Write-Ahead Log / Checkpoints                               	
+checkpoint_flush_after        	0                             	Write-Ahead Log / Checkpoints                               	
+checkpoint_timeout            	300                           	Write-Ahead Log / Checkpoints                               	
+commit_delay                  	0                             	Write-Ahead Log / Settings                                  	
+fsync                         	on                            	Write-Ahead Log / Settings                                  	
+full_page_writes              	on                            	Write-Ahead Log / Settings                                  	
+max_wal_size                  	1024                          	Write-Ahead Log / Checkpoints                               	
+synchronous_commit            	on                            	Write-Ahead Log / Settings                                  	
+wal_compression               	off                           	Write-Ahead Log / Settings                                  	
+wal_level                     	replica                       	Write-Ahead Log / Settings                                  	
+wal_recycle                   	on                            	Write-Ahead Log / Settings                                  	
+wal_sync_method               	open_datasync                 	Write-Ahead Log / Settings                                  	
+wal_writer_delay              	200                           	Write-Ahead Log / Settings                                  	
+wal_writer_flush_after        	128                           	Write-Ahead Log / Settings                                  	
+-------------------- 
+
