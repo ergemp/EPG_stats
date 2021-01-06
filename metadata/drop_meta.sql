@@ -14,6 +14,7 @@ begin
 	execute 'drop table if exists fv_stats.stat_bgwriter_hist';
 	execute 'drop table if exists fv_stats.stat_locks_hist';
 	execute 'drop table if exists fv_stats.stat_database_hist';
+	execute 'drop table if exists fv_stats.pg_settings_hist';
 end
 $$
 language plpgsql 

@@ -209,6 +209,17 @@ BEGIN
 			 	)';
 	EXECUTE 'create index if not exists ix_stat_database_hist on fv_stats.stat_database_hist(ts)';
 
+	EXECUTE 'create table if not exists fv_stats.pg_settings_hist 
+				(
+					ts bigint,
+					name text,
+					setting text,
+					category text
+			 	)';
+	EXECUTE 'create index if not exists ix_pg_setings_hist on fv_stats.pg_settings_hist(ts)';	
+
 END;
 $$
 language plpgsql
+
+--call fv_stats.create_meta();

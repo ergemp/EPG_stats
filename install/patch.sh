@@ -31,6 +31,7 @@ psql -d $1 -f getter/get_stat_bgwriter_hist.sql
 psql -d $1 -f getter/get_stat_database_hist.sql
 psql -d $1 -f getter/get_stat_locks_hist.sql
 psql -d $1 -f getter/get_stat_statements_hist.sql
+psql -d $1 -f getter/get_pg_settings_hist.sql
 
 # install awr 
 psql -d $1 -f awr/generate_report.sql

@@ -15,6 +15,7 @@ begin
     delete from fv_stats.stat_database_hist where ts < cast(extract (epoch from nnow - g_interval) as bigint);
     delete from fv_stats.stat_bgwriter_hist where ts < cast(extract (epoch from nnow - g_interval) as bigint);
     delete from fv_stats.stat_archiver_hist where ts < cast(extract (epoch from nnow - g_interval) as bigint);
+    delete from fv_stats.pg_settings_hist where ts < cast(extract (epoch from nnow - g_interval) as bigint);
 end
 $$
 language plpgsql 

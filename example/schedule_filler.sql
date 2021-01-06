@@ -94,9 +94,21 @@ select ts, to_timestamp(ts) from fv_stats.find_interval(now(),interval '30 min')
 --
 -- test getter functions
 --  
-select * from fv_stats.get_stat_bgwriter_hist(cast(extract(epoch from now()) as bigint)) ;
-select * from fv_stats.get_stat_bgwriter_hist(1606199201) ;
-  
+
+select * from fv_stats.get_pg_settings_hist(cast(extract(epoch from now()) as bigint), interval '30 min') ;
+
+select min(ts) from fv_stats.find_interval(cast(extract(epoch from now()) as bigint), interval '1 hour')
+select ts from fv_stats.find_interval(cast(extract(epoch from now()) as bigint), interval '5 hour')
+select distinct ts from fv_stats.pg_settings_hist;
+
+with min_ts as 
+  (
+  select min(ts) as ts
+    from fv_stats.find_interval(cast(extract(epoch from now()) as bigint), interval '1 hour')
+  )
+select distinct ts - (select ts from min_ts), ts  from fv_stats.pg_settings_hist
+order by 1 asc limit 1
+
 
 select count(*) from 
 (

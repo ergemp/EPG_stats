@@ -27,6 +27,11 @@ DECLARE
   tablecachehitratio numeric;
   indexcachehitratio numeric;
 
+  general_params_curr record;
+  parallel_params_curr record;
+  autovacuum_params_curr record;
+  wal_params_curr record;
+  top_table_size_curr record;
   temp_query_cur record;
   long_query_cur record;
   bloats_curr record;
@@ -469,14 +474,133 @@ begin
     END LOOP;
     perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) || chr(10) , true)  ;
 
+    perform pg_catalog.pg_file_write(g_filename, '---------- ' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, 'Top 20 Largest Tables (current)  ' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, '-----------' || chr(10) , true)  ;
+
+    perform pg_catalog.pg_file_write(g_filename, 
+                                                 format('%-30s','schema_name') || chr(9) || 
+                                                 format('%-60s','relation_name') || chr(9) || 
+                                                 format('%-20s','total_size') || chr(9) || 
+                                                 chr(10), true)  ;
+    FOR top_table_size_curr IN
+        SELECT
+            nspname AS "schema_name",
+            relname AS "relation_name",
+            pg_size_pretty (
+                pg_total_relation_size (C .oid)
+            ) AS "total_size"
+        FROM
+            pg_class C
+        LEFT JOIN pg_namespace N ON (N.oid = C .relnamespace)
+        WHERE
+            nspname NOT IN (
+                'pg_catalog',
+                'information_schema'
+            )
+        AND C .relkind <> 'i'
+        AND nspname !~ '^pg_toast'
+        ORDER BY
+            pg_total_relation_size (C .oid) DESC
+        LIMIT 20
+    LOOP
+      perform pg_catalog.pg_file_write(g_filename, format('%-30s',top_table_size_curr.schema_name) || chr(9), true)  ;
+      perform pg_catalog.pg_file_write(g_filename, format('%-60s',top_table_size_curr.relation_name) || chr(9), true)  ;
+      perform pg_catalog.pg_file_write(g_filename, format('%-20s',top_table_size_curr.total_size) || chr(9), true)  ;
+      perform pg_catalog.pg_file_write(g_filename, chr(10) , true)  ;
+    END LOOP;
+    perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) || chr(10) , true)  ;
+
+    perform pg_catalog.pg_file_write(g_filename, '---------- ' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, 'General Parameters ' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, '-----------' || chr(10) , true)  ;
+
+    perform pg_catalog.pg_file_write(g_filename, 
+                                                 format('%-30s','name') || chr(9) || 
+                                                 format('%-30s','setting') || chr(9) || 
+                                                 format('%-60s','category') || chr(9) || 
+                                                 chr(10), true)  ;
+    FOR general_params_curr IN
+        SELECT name, setting, category FROM fv_stats.get_pg_settings_hist(g_ts, g_interval) where name in ('listen_address','port','max_connections','shared_buffers','wal_buffers',
+                                                              'temp_buffers', 'maintenance_work_mem', 'autovacuum_work_mem','effective_cache_size',
+                                                              'superuser_reserved_connections','authentication_timeout',
+                                                              'update_process_title','cluster_name' )
+    LOOP
+      perform pg_catalog.pg_file_write(g_filename, format('%-30s',general_params_curr.name) || chr(9), true)  ;
+      perform pg_catalog.pg_file_write(g_filename, format('%-30s',general_params_curr.setting) || chr(9), true)  ;
+      perform pg_catalog.pg_file_write(g_filename, format('%-60s',general_params_curr.category) || chr(9), true)  ;
+      perform pg_catalog.pg_file_write(g_filename, chr(10) , true)  ;
+    END LOOP;
+    perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) || chr(10) , true)  ;
+
+    perform pg_catalog.pg_file_write(g_filename, '---------- ' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, 'Autovacuum Parameters ' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, '-----------' || chr(10) , true)  ;
+
+    perform pg_catalog.pg_file_write(g_filename, 
+                                                 format('%-30s','name') || chr(9) || 
+                                                 format('%-30s','setting') || chr(9) || 
+                                                 format('%-60s','category') || chr(9) || 
+                                                 chr(10), true)  ;
+    FOR autovacuum_params_curr IN
+        SELECT name, setting, category FROM fv_stats.get_pg_settings_hist(g_ts, g_interval) where name in ( 'autovacuum_freeze_max_age','autovacuum_max_workers','autovacuum_naptime',
+                                        'autovacuum_vacuum_cost_delay','maintenance_work_mem','vacuum_freeze_min_age',
+                                        'autovacuum_vacuum_cost_limit','autovacuum_vacuum_cost_delay',
+                                        'vacuum_cost_page_hit', 'vacuum_cost_page_miss', 'vacuum_cost_page_dirty',
+                                        'autovacuum_vacuum_scale_factor','autovacuum_vacuum_treshold')
+    LOOP
+      perform pg_catalog.pg_file_write(g_filename, format('%-30s',autovacuum_params_curr.name) || chr(9), true)  ;
+      perform pg_catalog.pg_file_write(g_filename, format('%-30s',autovacuum_params_curr.setting) || chr(9), true)  ;
+      perform pg_catalog.pg_file_write(g_filename, format('%-60s',autovacuum_params_curr.category) || chr(9), true)  ;
+      perform pg_catalog.pg_file_write(g_filename, chr(10) , true)  ;
+    END LOOP;
+    perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) || chr(10) , true)  ;    
+
+    perform pg_catalog.pg_file_write(g_filename, '---------- ' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, 'Parallel Processes Parameters ' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, '-----------' || chr(10) , true)  ;
+
+    perform pg_catalog.pg_file_write(g_filename, 
+                                                 format('%-30s','name') || chr(9) || 
+                                                 format('%-30s','setting') || chr(9) || 
+                                                 format('%-60s','category') || chr(9) || 
+                                                 chr(10), true)  ;
+    FOR parallel_params_curr IN
+        SELECT name, setting, category FROM fv_stats.get_pg_settings_hist(g_ts, g_interval) where name in ('max_worker_processes','max_parallel_workers','max_parallel_workers_per_gather',
+                                                               'parallel_setup_cost','parallel_tuple_cost','min_parallel_table_scan_size','min_parallel_index_scan_size',
+                                                               'force_parallel_mode','work_mem','maintenance_work_mem')
+    LOOP
+      perform pg_catalog.pg_file_write(g_filename, format('%-30s',parallel_params_curr.name) || chr(9), true)  ;
+      perform pg_catalog.pg_file_write(g_filename, format('%-30s',parallel_params_curr.setting) || chr(9), true)  ;
+      perform pg_catalog.pg_file_write(g_filename, format('%-60s',parallel_params_curr.category) || chr(9), true)  ;
+      perform pg_catalog.pg_file_write(g_filename, chr(10) , true)  ;
+    END LOOP;
+    perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) || chr(10) , true)  ;     
+
+    perform pg_catalog.pg_file_write(g_filename, '---------- ' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, 'WAL Parameters' || chr(10) , true)  ;
+    perform pg_catalog.pg_file_write(g_filename, '-----------' || chr(10) , true)  ;
+
+    perform pg_catalog.pg_file_write(g_filename, 
+                                                 format('%-30s','name') || chr(9) || 
+                                                 format('%-30s','setting') || chr(9) || 
+                                                 format('%-60s','category') || chr(9) || 
+                                                 chr(10), true)  ;
+    FOR wal_params_curr IN
+        SELECT name, setting, category FROM fv_stats.get_pg_settings_hist(g_ts, g_interval)
+          where name in ('fsync','wal_sync_method','synchronous_commit','wal_writer_delay', 'wal_writer_delay', 'wal_writer_flush_after',
+                 'checkpoint_timeout','checkpoint_completion_target','checkpoint_flush_after','max_wal_size','commit_delay',
+                 'wal_recycle','wal_compression','full_page_writes','wal_level')
+    LOOP
+      perform pg_catalog.pg_file_write(g_filename, format('%-30s',wal_params_curr.name) || chr(9), true)  ;
+      perform pg_catalog.pg_file_write(g_filename, format('%-30s',wal_params_curr.setting) || chr(9), true)  ;
+      perform pg_catalog.pg_file_write(g_filename, format('%-60s',wal_params_curr.category) || chr(9), true)  ;
+      perform pg_catalog.pg_file_write(g_filename, chr(10) , true)  ;
+    END LOOP;
+    perform pg_catalog.pg_file_write(g_filename, '-------------------- ' || chr(10) || chr(10) , true)  ;       
+
 END;
 $$
 LANGUAGE plpgsql
 
---call fv_stats.generate_report (cast(extract (epoch from now()) as bigint), INTERVAL '5 days', 'awr.txt');
-
-  
-
-
-
-
+call fv_stats.generate_report (cast(extract (epoch from now()) as bigint), INTERVAL '30 min', 'awr.txt');

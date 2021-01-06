@@ -372,7 +372,21 @@ BEGIN
 					blk_read_time ,
 					blk_write_time ,
 					stats_reset 
-				FROM pg_stat_database';			
+				FROM pg_stat_database';	
+
+	execute 'INSERT INTO fv_stats.pg_settings_hist 
+				(
+					ts ,
+					name ,
+					setting	,
+					category 
+				)
+				SELECT 
+					'|| currentts || ' ,
+					name ,
+					setting	,
+					category 
+				FROM pg_settings';						
 			
 END
 $$
