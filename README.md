@@ -1,17 +1,17 @@
-# FV_stats
+# EPG_stats
 Statistics repository and interval based performance reports with plpgsql
 
 # Description
-FV stats collects the statistics from the Postgresql catalog and creates its own repository. Then simply select the statistical information within the supplied time period. 
+EPG stats collects the statistics from the Postgresql catalog and creates its own repository. Then simply select the statistical information within the supplied time period. 
 
-With FV stats, you are able to ask questions like;
+With EPG stats, you are able to ask questions like;
 Whats is my IO for the last hour.
 What was the performance bottleneck yesterday night between 23:00 and 03:00 hours. 
 And so on... 
 
 # Installation Prerequisities
 ## Configuring statistics collector
-FV stats is highly dependent to the Postgresql native statistics collector. So at least the following tracking options should be enabled.
+EPG stats is highly dependent to the Postgresql native statistics collector. So at least the following tracking options should be enabled.
 
 You can configure the settings by editing the postgresql.conf file.
 
@@ -32,7 +32,7 @@ alter system set track_activity_query_size = 1024;
 ```
 
 ## Installing pg_stat_statements
-FV stats also collects the pg_stat_statements data. So installting the extension is a must. 
+EPG stats also collects the pg_stat_statements data. So installting the extension is a must. 
 
 ```
 create extension pg_stat_statements; 
@@ -46,7 +46,7 @@ In order to be able to create text file based reports adminpack extension must b
 create extension adminpack;
 ```
 
-## FV_stats installation
+## EPG_stats installation
 Download the codes from this site. (https://github.com/ergemp/FV_stats/)
 Copy the files to your postgresql database.
 Unzip the files and cd to the unzipped folder. 
