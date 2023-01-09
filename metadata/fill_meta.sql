@@ -4,6 +4,7 @@ CREATE OR replace procedure fv_stats.fill_meta()  as
 $$
 DECLARE
   currentts bigint;
+  pg_version varchar(10);
 BEGIN
 	
 	currentts := extract(epoch from now()::timestamp with time zone) ;
@@ -235,60 +236,120 @@ BEGIN
 					buffers_alloc , 
 					stats_reset 
 				FROM pg_stat_bgwriter';
-			
-	execute 'INSERT INTO fv_stats.stat_statements_hist 
-				(
-					ts ,
-					userid ,
-					dbid ,
-					queryid ,
-					query ,
-					calls ,
-					total_time ,
-					min_time ,
-					max_time ,
-					mean_time ,
-					stddev_time ,
-					rows ,
-					shared_blks_hit ,
-					shared_blks_read ,
-					shared_blks_dirtied ,
-					shared_blks_written ,
-					local_blks_hit ,
-					local_blks_read ,
-					local_blks_dirtied ,
-					local_blks_written ,
-					temp_blks_read ,
-					temp_blks_written ,
-					blk_read_time ,
-					blk_write_time 
-				)
-				SELECT 
-					' || currentts || ',
-					userid ,
-					dbid ,
-					queryid ,
-					query ,
-					calls ,
-					total_time ,
-					min_time ,
-					max_time ,
-					mean_time ,
-					stddev_time ,
-					rows ,
-					shared_blks_hit ,
-					shared_blks_read ,
-					shared_blks_dirtied ,
-					shared_blks_written ,
-					local_blks_hit ,
-					local_blks_read ,
-					local_blks_dirtied ,
-					local_blks_written ,
-					temp_blks_read ,
-					temp_blks_written ,
-					blk_read_time ,
-					blk_write_time 
-				FROM pg_stat_statements';			
+
+
+    --select  * from pg_settings where name = 'server_version';
+    select substring(version(), length('PostgreSQL ') + 1, 2) into pg_version;
+   
+    if (pg_version in ('10','11','12') ) then
+		execute 'INSERT INTO fv_stats.stat_statements_hist 
+					(
+						ts ,
+						userid ,
+						dbid ,
+						queryid ,
+						query ,
+						calls ,
+						total_time ,
+						min_time ,
+						max_time ,
+						mean_time ,
+						stddev_time ,
+						rows ,
+						shared_blks_hit ,
+						shared_blks_read ,
+						shared_blks_dirtied ,
+						shared_blks_written ,
+						local_blks_hit ,
+						local_blks_read ,
+						local_blks_dirtied ,
+						local_blks_written ,
+						temp_blks_read ,
+						temp_blks_written ,
+						blk_read_time ,
+						blk_write_time 
+					)
+					SELECT 
+						' || currentts || ',
+						userid ,
+						dbid ,
+						queryid ,
+						query ,
+						calls ,
+						total_time ,
+						min_time ,
+						max_time ,
+						mean_time ,
+						stddev_time ,
+						rows ,
+						shared_blks_hit ,
+						shared_blks_read ,
+						shared_blks_dirtied ,
+						shared_blks_written ,
+						local_blks_hit ,
+						local_blks_read ,
+						local_blks_dirtied ,
+						local_blks_written ,
+						temp_blks_read ,
+						temp_blks_written ,
+						blk_read_time ,
+						blk_write_time 
+					FROM pg_stat_statements';
+	elsif (pg_version in ('13', '14','15') ) then
+		execute 'INSERT INTO fv_stats.stat_statements_hist 
+					(
+						ts ,
+						userid ,
+						dbid ,
+						queryid ,
+						query ,
+						calls ,
+						total_time ,
+						min_time ,
+						max_time ,
+						mean_time ,
+						stddev_time ,
+						rows ,
+						shared_blks_hit ,
+						shared_blks_read ,
+						shared_blks_dirtied ,
+						shared_blks_written ,
+						local_blks_hit ,
+						local_blks_read ,
+						local_blks_dirtied ,
+						local_blks_written ,
+						temp_blks_read ,
+						temp_blks_written ,
+						blk_read_time ,
+						blk_write_time 
+					)
+					SELECT 
+						' || currentts || ',
+						userid ,
+						dbid ,
+						queryid ,
+						query ,
+						calls ,
+						total_exec_time ,
+						min_exec_time ,
+						max_exec_time ,
+						mean_exec_time ,
+						stddev_exec_time ,
+						rows ,
+						shared_blks_hit ,
+						shared_blks_read ,
+						shared_blks_dirtied ,
+						shared_blks_written ,
+						local_blks_hit ,
+						local_blks_read ,
+						local_blks_dirtied ,
+						local_blks_written ,
+						temp_blks_read ,
+						temp_blks_written ,
+						blk_read_time ,
+						blk_write_time 
+					FROM pg_stat_statements';	
+	end if;
 
 	execute 'INSERT INTO fv_Stats.stat_locks_hist 
 				(

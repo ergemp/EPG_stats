@@ -39,3 +39,4 @@ psql -d $1 -f getter/get_pg_settings_hist.sql
 
 # install awr 
 psql -d $1 -f awr/generate_report.sql
+psql -d $1 -f awr/show_report.sql
