@@ -21,9 +21,9 @@ BEGIN
       min(saih.ts) AS begin_ts, 
       max(saih.ts) AS end_ts, 
       saih.relid, saih.indexrelid, saih.schemaname, saih.relname, saih.indexrelname,
-      max(saih.idx_scan) - case when coalesce(min(saih.idx_scan),0)=max(saih.idx_scan) then 0 else coalesce(min(saih.idx_scan),0) end as idx_scan,
-      max(saih.idx_tup_read) - case when coalesce(min(saih.idx_tup_read),0)=max(saih.idx_tup_read) then 0 else coalesce(min(saih.idx_tup_read),0) end as idx_tup_read,
-      max(saih.idx_tup_fetch) - case when coalesce(min(saih.idx_tup_fetch),0)=max(saih.idx_tup_fetch) then 0 else coalesce(min(saih.idx_tup_fetch),0) end as idx_tup_fetch
+      abs(coalesce(max(saih.idx_scan),0) - coalesce(min(saih.idx_scan),0)) as idx_scan,
+      abs(max(saih.idx_tup_read) - coalesce(min(saih.idx_tup_read),0)) as idx_tup_read,
+      abs(max(saih.idx_tup_fetch) - coalesce(min(saih.idx_tup_fetch),0))  as idx_tup_fetch
     from 
       fv_stats.stat_all_indexes_hist  saih
     WHERE saih.ts BETWEEN

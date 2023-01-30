@@ -24,14 +24,14 @@ BEGIN
       min(sath.ts) AS begin_ts, 
       max(sath.ts) AS end_ts, 
       sath.relid, sath.schemaname, sath.relname, 
-      max(sath.heap_blks_read) - case when coalesce(min(sath.heap_blks_read),0)=max(sath.heap_blks_read) then 0 else coalesce(min(sath.heap_blks_read),0) end as heap_blks_read,
-      max(sath.heap_blks_hit) - case when coalesce(min(sath.heap_blks_hit),0)=max(sath.heap_blks_hit) then 0 else coalesce(min(sath.heap_blks_hit),0) end as heap_blks_hit,
-      max(sath.idx_blks_read) - case when coalesce(min(sath.idx_blks_read),0)=max(sath.idx_blks_read) then 0 else coalesce(min(sath.idx_blks_read),0) end as idx_blks_read,
-      max(sath.idx_blks_hit) - case when coalesce(min(sath.idx_blks_hit),0)=max(sath.idx_blks_hit) then 0 else coalesce(min(sath.idx_blks_hit),0) end as idx_blks_hit,
-      max(sath.toast_blks_read) - case when coalesce(min(sath.toast_blks_read),0)=max(sath.toast_blks_read) then 0 else coalesce(min(sath.toast_blks_read),0) end as toast_blks_read,      
-      max(sath.toast_blks_hit) - case when coalesce(min(sath.toast_blks_hit),0)=max(sath.toast_blks_hit) then 0 else coalesce(min(sath.toast_blks_hit),0) end as toast_blks_hit,
-      max(sath.tidx_blks_read) - case when coalesce(min(sath.tidx_blks_read),0)=max(sath.tidx_blks_read) then 0 else coalesce(min(sath.tidx_blks_read),0) end as tidx_blks_read,
-      max(sath.tidx_blks_hit) - case when coalesce(min(sath.tidx_blks_hit),0)=max(sath.tidx_blks_hit) then 0 else coalesce(min(sath.tidx_blks_hit),0) end as tidx_blks_hit
+      abs(max(sath.heap_blks_read) - coalesce(min(sath.heap_blks_read),0)) as heap_blks_read,
+      abs(max(sath.heap_blks_hit) - coalesce(min(sath.heap_blks_hit),0)) as heap_blks_hit,
+      abs(max(sath.idx_blks_read) - coalesce(min(sath.idx_blks_read),0)) as idx_blks_read,
+      abs(max(sath.idx_blks_hit) - coalesce(min(sath.idx_blks_hit),0)) as idx_blks_hit,
+      abs(max(sath.toast_blks_read) - coalesce(min(sath.toast_blks_read),0)) as toast_blks_read,      
+      abs(max(sath.toast_blks_hit) - coalesce(min(sath.toast_blks_hit),0)) as toast_blks_hit,
+      abs(max(sath.tidx_blks_read) - coalesce(min(sath.tidx_blks_read),0)) as tidx_blks_read,
+      abs(max(sath.tidx_blks_hit) - coalesce(min(sath.tidx_blks_hit),0)) as tidx_blks_hit
     from 
       fv_stats.statio_all_tables_hist  sath
       WHERE sath.ts BETWEEN

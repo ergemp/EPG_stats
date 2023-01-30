@@ -20,8 +20,8 @@ BEGIN
       min(saih.ts) AS begin_ts, 
       max(saih.ts) AS end_ts, 
       saih.relid, saih.indexrelid, saih.schemaname, saih.relname, saih.indexrelname,
-      max(saih.idx_blks_read) - case when coalesce(min(saih.idx_blks_read),0)=max(saih.idx_blks_read) then 0 else coalesce(min(saih.idx_blks_read),0) end as idx_blks_read,
-      max(saih.idx_blks_hit) - case when coalesce(min(saih.idx_blks_hit),0)=max(saih.idx_blks_hit) then 0 else coalesce(min(saih.idx_blks_hit),0) end as idx_blks_hit
+      abs(max(saih.idx_blks_read) - coalesce(min(saih.idx_blks_read),0)) as idx_blks_read,
+      abs(max(saih.idx_blks_hit) - coalesce(min(saih.idx_blks_hit),0)) as idx_blks_hit
     from 
       fv_stats.statio_all_indexes_hist  saih
       WHERE saih.ts BETWEEN
