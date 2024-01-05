@@ -1,10 +1,10 @@
-# epg_stats
+# epg_stat_history
 Statistics repository and interval based performance reports with plpgsql
 
 # Description
-EPG stats collects the statistics from the Postgresql catalog and creates its own repository. Then simply select the statistical information within the supplied time period. 
+EPG stat history collects the statistics from the Postgresql catalog and creates its own repository. Then simply select the statistical information within the supplied time period. 
 
-With EPG stats, you are able to ask questions like;
+With EPG stat history, you are able to ask questions like;
 Whats is my IO for the last hour.
 What was the performance bottleneck yesterday night between 23:00 and 03:00 hours. 
 And so on... 
